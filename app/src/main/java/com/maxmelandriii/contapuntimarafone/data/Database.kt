@@ -21,7 +21,8 @@ data class PartitaEntity(
     val puntiVoi: Int,
     val vincitore: String,
     val dataPartita: String,
-    val inCorso: Boolean
+    val inCorso: Boolean,
+    val sogliaVittoria: Int = 41
 )
 
 @Dao
@@ -49,7 +50,7 @@ interface PartitaDao {
     suspend fun svuotaCronologia()
 }
 
-@Database(entities = [PartitaEntity::class], version = 2, exportSchema = false)
+@Database(entities = [PartitaEntity::class], version = 3, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun partitaDao(): PartitaDao
 }

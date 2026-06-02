@@ -89,9 +89,6 @@ class MainActivity : ComponentActivity() {
 
             ContaPuntiMarafoneTheme {
 
-                val isSamsung = Build.MANUFACTURER.equals("samsung", ignoreCase = true)
-                val dynamicCornerRadius = if (isSamsung) 21.dp else 32.dp
-
                 // ✨ IL LOOK iOS: NERO PURO O BIANCO PURO ✨
                 val isDark = isSystemInDarkTheme()
                 val iosBgColor = if (isDark) Color.Black else Color.White
@@ -114,7 +111,8 @@ class MainActivity : ComponentActivity() {
                 var mostraPopup by remember { mutableStateOf(false) }
                 var mostraMenuSheet by remember { mutableStateOf(false) }
                 var mostraPopupVittoria by remember { mutableStateOf(false) }
-                var continuaDopo41 by remember { mutableStateOf(false) }
+                var continuaOltreSoglia by remember { mutableStateOf(false) }
+                var vittoriaSoglia by remember { mutableIntStateOf(41) }
 
                 val handlePuntiChange = { input: String, isNoi: Boolean ->
                     val s = input.filter { it.isDigit() }
@@ -137,7 +135,7 @@ class MainActivity : ComponentActivity() {
                     val nVoi = voi.nomeSquad.ifEmpty { "Voi" }
                     val idPartita = idPartitaAttuale
 
-                    val partitaVeramenteFinita = forzaChiusura || pNoi >= 41 || pVoi >= 41
+                    val partitaVeramenteFinita = forzaChiusura || pNoi >= vittoriaSoglia || pVoi >= vittoriaSoglia
                     val statoInCorso = !partitaVeramenteFinita
 
                     scope.launch {
@@ -148,13 +146,14 @@ class MainActivity : ComponentActivity() {
                             puntiNoi = pNoi,
                             puntiVoi = pVoi,
                             vincitore = when {
-                                pNoi >= 41 && pNoi > pVoi -> nNoi
-                                pVoi >= 41 && pVoi > pNoi -> nVoi
+                                pNoi >= vittoriaSoglia && pNoi > pVoi -> nNoi
+                                pVoi >= vittoriaSoglia && pVoi > pNoi -> nVoi
                                 forzaChiusura -> "Resettata"
                                 else -> ""
                             },
                             dataPartita = ottieniDataDiOggi(),
-                            inCorso = statoInCorso
+                            inCorso = statoInCorso,
+                            sogliaVittoria = vittoriaSoglia
                         )
 
                         if (idPartita == null) {
@@ -181,6 +180,7 @@ class MainActivity : ComponentActivity() {
                             voi.nomeSquad = sospesa.nomeVoi
                             noi.setPoint(sospesa.puntiNoi)
                             voi.setPoint(sospesa.puntiVoi)
+                            vittoriaSoglia = sospesa.sogliaVittoria
                             intent.removeExtra("ID_PARTITA_RIPRENDI")
                         }
                     }
@@ -208,7 +208,6 @@ class MainActivity : ComponentActivity() {
                                 innerPadding = innerPadding,
                                 noi = noi,
                                 voi = voi,
-                                dynamicCornerRadius = dynamicCornerRadius,
                                 puntiInseritiNoi = puntiInseritiNoi,
                                 puntiInseritiVoi = puntiInseritiVoi,
                                 isMaraffaNoi = isMaraffaNoi,
@@ -240,7 +239,6 @@ class MainActivity : ComponentActivity() {
                                     innerPadding = innerPadding,
                                     noi = noi,
                                     voi = voi,
-                                    dynamicCornerRadius = dynamicCornerRadius,
                                     puntiInseritiNoi = puntiInseritiNoi,
                                     puntiInseritiVoi = puntiInseritiVoi,
                                     isMaraffaNoi = isMaraffaNoi,
@@ -280,7 +278,6 @@ class MainActivity : ComponentActivity() {
                                     innerPadding = innerPadding,
                                     noi = noi,
                                     voi = voi,
-                                    dynamicCornerRadius = dynamicCornerRadius,
                                     puntiInseritiNoi = puntiInseritiNoi,
                                     puntiInseritiVoi = puntiInseritiVoi,
                                     isMaraffaNoi = isMaraffaNoi,
@@ -328,6 +325,11 @@ class MainActivity : ComponentActivity() {
                                     History::class.java
                                 )
                             )
+                        },
+                        vittoriaSoglia = vittoriaSoglia,
+                        onVittoriaSogliaChange = { 
+                            vittoriaSoglia = it
+                            salvaStatoInDB(false)
                         }
                     )
 
@@ -343,7 +345,7 @@ class MainActivity : ComponentActivity() {
                         nomeVoi = voi.nomeSquad
                     )
 
-                        if ((noi.punti >= 41 || voi.punti >= 41) && noi.punti != voi.punti && !continuaDopo41) {
+                        if ((noi.punti >= vittoriaSoglia || voi.punti >= vittoriaSoglia) && noi.punti != voi.punti && !continuaOltreSoglia) {
                             mostraPopupVittoria = true
                         }
 
@@ -357,7 +359,7 @@ class MainActivity : ComponentActivity() {
                             idPartitaAttuale = null
                         },
                         onContinue = {
-                            continuaDopo41 = true
+                            continuaOltreSoglia = true
                             mostraPopupVittoria = false
                             salvaStatoInDB(false)
                         },

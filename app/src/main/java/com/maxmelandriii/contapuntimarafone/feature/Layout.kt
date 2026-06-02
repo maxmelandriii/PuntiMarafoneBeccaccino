@@ -17,7 +17,6 @@ fun VerticalLayout(
     innerPadding: PaddingValues,
     noi: Player,
     voi: Player,
-    dynamicCornerRadius: Dp,
     puntiInseritiNoi: String,
     puntiInseritiVoi: String,
     isMaraffaNoi: Boolean,
@@ -32,7 +31,6 @@ fun VerticalLayout(
     onUndoClick: () -> Unit,
     onMenuClick: () -> Unit,
     // ✨ I TUOI DATI ESATTI MESSI COME DEFAULT! ✨
-    // Se non glieli passi, usa questi. Se glieli passi (es. per il tablet), usa i tuoi nuovi!
     iconSize: Dp = 25.dp,
     nameSize: Int = 18,
     pointSize: Int = 85,
@@ -45,17 +43,17 @@ fun VerticalLayout(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .fillMaxHeight()
             .widthIn(max = 600.dp)
             .padding(
                 top = innerPadding.calculateTopPadding() + 8.dp,
                 bottom = innerPadding.calculateBottomPadding() + 8.dp
             ),
-        verticalArrangement = Arrangement.SpaceEvenly
+        verticalArrangement = Arrangement.SpaceBetween
     ) {
         BannerPubblicitario()
+        
         // --- BLOCCO 1: PUNTEGGI ---
-        Column(modifier = Modifier.fillMaxWidth()) {
+        Column(modifier = Modifier.fillMaxWidth().padding(bottom = 9.dp)) {
             WinnerBannerRow(puntiVoi = voi.punti, puntiNoi = noi.punti, customIconSize = iconSize)
             NameBarRow(
                 nomeNoi = noi.nomeSquad, onNomeNoiChange = onNomeNoiChange,
@@ -67,12 +65,15 @@ fun VerticalLayout(
 
         // --- BLOCCO 2: INSERIMENTO E MARAFFA ---
         Card(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 15.dp),
-            shape = RoundedCornerShape(dynamicCornerRadius),
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f, fill = false)
+                .padding(horizontal = 15.dp, vertical = 15.dp),
+            shape = getDynamicRadius(),
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
             elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
         ) {
-            Column(modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp)) {
+            Column(modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp)) {
                 InsertPointSquadRow(
                     puntiNoi = puntiInseritiNoi, onPuntiNoiChange = onPuntiNoiChange,
                     puntiVoi = puntiInseritiVoi, onPuntiVoiChange = onPuntiVoiChange,
@@ -83,18 +84,18 @@ fun VerticalLayout(
                     isMaraffaVoi = isMaraffaVoi, onMaraffaVoiChange = onMaraffaVoiChange,
                     customFontSize = maraffaFontSize, customHeight = insertHeight
                 )
-                CardImageRow(customHeight = imageHeight)
+                CardImageRow(modifier = Modifier.weight(1f, fill = false), customHeight = imageHeight)
             }
         }
 
         // --- BLOCCO 3: COMANDI ---
         Card(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 15.dp, vertical = 12.dp),
-            shape = RoundedCornerShape(dynamicCornerRadius),
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 15.dp, vertical = 0.dp),
+            shape = getDynamicRadius(),
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
             elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
         ) {
-            Column(modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp)) {
+            Column(modifier = Modifier.fillMaxWidth()) {
                 ActionButtonsRow(
                     onAddClick = onAddClick, onUndoClick = onUndoClick, onMenuClick = onMenuClick,
                     customHeight = buttonHeight
@@ -109,7 +110,6 @@ fun HorizontalLayout(
     innerPadding: PaddingValues,
     noi: Player,
     voi: Player,
-    dynamicCornerRadius: Dp,
     puntiInseritiNoi: String,
     puntiInseritiVoi: String,
     isMaraffaNoi: Boolean,
@@ -123,10 +123,9 @@ fun HorizontalLayout(
     onAddClick: () -> Unit,
     onUndoClick: () -> Unit,
     onMenuClick: () -> Unit,
-    // ✨ I TUOI DATI ESATTI MESSI COME DEFAULT ANCHE QUI! ✨
-    iconSize: Dp = 60.dp,
-    nameSize: Int = 35,
-    pointSize: Int = 190,
+    iconSize: Dp = 40.dp,
+    nameSize: Int = 24,
+    pointSize: Int = 120,
     insertFontSize: Int = 32,
     insertHeight: Dp = 80.dp,
     maraffaFontSize: Int = 14,
@@ -135,8 +134,7 @@ fun HorizontalLayout(
 ) {
     Row(
         modifier = Modifier
-            .fillMaxWidth()
-            .fillMaxHeight()
+            .fillMaxSize()
             .widthIn(max = 1000.dp)
             .padding(
                 top = innerPadding.calculateTopPadding() + 16.dp,
@@ -149,8 +147,8 @@ fun HorizontalLayout(
     ) {
         // --- COLONNA SINISTRA: I Punteggi ---
         Column(
-            modifier = Modifier.weight(1f).fillMaxHeight().padding(vertical = 8.dp),
-            verticalArrangement = Arrangement.Center,
+            modifier = Modifier.weight(1f).fillMaxHeight(),
+            verticalArrangement = Arrangement.Center, // Rende il gruppo nomi/punti/corone più compatto
             horizontalAlignment = Alignment.CenterHorizontally
         ){
             WinnerBannerRow(puntiVoi = voi.punti, puntiNoi = noi.punti, customIconSize = iconSize)
@@ -164,17 +162,20 @@ fun HorizontalLayout(
 
         // --- COLONNA DESTRA: I Controlli ---
         Column(
-            modifier = Modifier.weight(1f).fillMaxHeight().padding(vertical = 8.dp),
-            verticalArrangement = Arrangement.Center
+            modifier = Modifier.weight(1f).fillMaxHeight(),
+            verticalArrangement = Arrangement.SpaceBetween
         ) {
             BannerPubblicitario()
             Card(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
-                shape = RoundedCornerShape(dynamicCornerRadius),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f, fill = false)
+                    .padding(horizontal = 8.dp, vertical = 12.dp),
+                shape = getDynamicRadius(),
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
                 elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
             ) {
-                Column(modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp)) {
+                Column(modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp)) {
                     InsertPointSquadRow(
                         puntiNoi = puntiInseritiNoi, onPuntiNoiChange = onPuntiNoiChange,
                         puntiVoi = puntiInseritiVoi, onPuntiVoiChange = onPuntiVoiChange,
@@ -185,17 +186,17 @@ fun HorizontalLayout(
                         isMaraffaVoi = isMaraffaVoi, onMaraffaVoiChange = onMaraffaVoiChange,
                         customFontSize = maraffaFontSize, customHeight = insertHeight
                     )
-                    CardImageRow(customHeight = imageHeight)
+                    CardImageRow(modifier = Modifier.weight(1f, fill = false), customHeight = imageHeight)
                 }
             }
 
             Card(
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 12.dp),
-                shape = RoundedCornerShape(dynamicCornerRadius),
+                shape = getDynamicRadius(),
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
                 elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
             ) {
-                Column(modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp)) {
+                Column(modifier = Modifier.fillMaxWidth()) {
                     ActionButtonsRow(
                         onAddClick = onAddClick, onUndoClick = onUndoClick, onMenuClick = onMenuClick,
                         customHeight = buttonHeight

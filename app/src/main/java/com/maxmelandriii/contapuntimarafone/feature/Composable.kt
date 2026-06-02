@@ -1,6 +1,7 @@
 package com.maxmelandriii.contapuntimarafone.feature
 
 import android.os.Build
+import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.viewinterop.AndroidView
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdSize
@@ -13,18 +14,24 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Create
@@ -79,11 +86,10 @@ import kotlinx.coroutines.launch
 // ✨ UTILITY PER IL LOOK COORDINATO (SAMSUNG VS OTHERS) ✨
 @Composable
 fun getDynamicRadius(isLarge: Boolean = true): RoundedCornerShape {
-    val isSamsung = Build.MANUFACTURER.equals("samsung", ignoreCase = true)
     return if (isLarge) {
-        RoundedCornerShape(if (isSamsung) 21.dp else 32.dp)
+        RoundedCornerShape(32.dp)
     } else {
-        RoundedCornerShape(if (isSamsung) 14.dp else 24.dp)
+        RoundedCornerShape(24.dp)
     }
 }
 
@@ -94,9 +100,11 @@ fun MenuPartita(
     onDismiss: () -> Unit,
     onApriPopup: () -> Unit,
     onNuovaPartita: () -> Unit,
-    onApriCronologia: () -> Unit
+    onApriCronologia: () -> Unit,
+    vittoriaSoglia: Int,
+    onVittoriaSogliaChange: (Int) -> Unit
 ) {
-    val sheetState = rememberModalBottomSheetState()
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val scope = rememberCoroutineScope()
     val smallRadius = getDynamicRadius(false)
 
@@ -118,13 +126,15 @@ fun MenuPartita(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(start = 24.dp, end = 24.dp, bottom = 48.dp, top = 8.dp)
+                    .fillMaxHeight(0.55f) // ✨ Occupa quasi tutto lo schermo (90%) ✨
+                    .verticalScroll(rememberScrollState())
+                    .padding(bottom = 32.dp)
             ) {
                 Text(
                     text = "Opzioni Partita",
                     fontSize = 22.sp,
                     fontWeight = FontWeight.ExtraBold,
-                    modifier = Modifier.padding(bottom = 24.dp)
+                    modifier = Modifier.padding(start = 24.dp, end = 24.dp, bottom = 16.dp, top = 8.dp)
                 )
 
                 AnimatedVisibility(
@@ -141,7 +151,6 @@ fun MenuPartita(
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .clip(smallRadius)
                                 .clickable {
                                     scope.launch { sheetState.hide() }.invokeOnCompletion {
                                         if (!sheetState.isVisible) {
@@ -150,7 +159,7 @@ fun MenuPartita(
                                         }
                                     }
                                 }
-                                .padding(vertical = 14.dp),
+                                .padding(horizontal = 24.dp, vertical = 20.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Icon(Icons.Default.Create, contentDescription = "Modifica Punti", tint = MaterialTheme.colorScheme.primary)
@@ -158,12 +167,15 @@ fun MenuPartita(
                             Text("Modifica Punteggio", fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
                         }
 
-                        HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp), thickness = 0.5.dp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f))
+                        HorizontalDivider(
+                            thickness = 0.5.dp,
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f),
+                            modifier = Modifier.padding(horizontal = 24.dp)
+                        )
 
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .clip(smallRadius)
                                 .clickable{
                                     scope.launch { sheetState.hide() }.invokeOnCompletion {
                                         if(!sheetState.isVisible) {
@@ -172,7 +184,7 @@ fun MenuPartita(
                                         }
                                     }
                                 }
-                                .padding(vertical = 14.dp),
+                                .padding(horizontal = 24.dp, vertical = 20.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ){
                             Icon(Icons.Default.History, contentDescription = "Cronologia", tint = MaterialTheme.colorScheme.primary)
@@ -180,12 +192,63 @@ fun MenuPartita(
                             Text("Cronologia Partite", fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
                         }
 
-                        HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp), thickness = 0.5.dp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f))
+                        HorizontalDivider(
+                            thickness = 0.5.dp,
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f),
+                            modifier = Modifier.padding(horizontal = 24.dp)
+                        )
+
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 24.dp, vertical = 16.dp)
+                        ) {
+                            Text(
+                                text = "Soglia Vittoria",
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.padding(bottom = 12.dp)
+                            )
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clip(smallRadius)
+                                    .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+                                    .padding(4.dp),
+                                horizontalArrangement = Arrangement.spacedBy(4.dp)
+                            ) {
+                                listOf(31, 41).forEach { soglia ->
+                                    val isSelected = vittoriaSoglia == soglia
+                                    Box(
+                                        modifier = Modifier
+                                            .weight(1f)
+                                            .height(48.dp)
+                                            .clip(smallRadius)
+                                            .background(if (isSelected) MaterialTheme.colorScheme.primary else Color.Transparent)
+                                            .clickable { onVittoriaSogliaChange(soglia) },
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Text(
+                                            text = "$soglia Punti",
+                                            fontSize = 18.sp,
+                                            fontWeight = FontWeight.SemiBold,
+                                            color = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface
+                                        )
+                                    }
+                                }
+                            }
+                        }
+
+                        HorizontalDivider(
+                            thickness = 0.5.dp,
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f),
+                            modifier = Modifier.padding(horizontal = 24.dp)
+                        )
 
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .clip(smallRadius)
                                 .clickable {
                                     scope.launch { sheetState.hide() }.invokeOnCompletion {
                                         if (!sheetState.isVisible) {
@@ -194,7 +257,7 @@ fun MenuPartita(
                                         }
                                     }
                                 }
-                                .padding(vertical = 14.dp),
+                                .padding(horizontal = 24.dp, vertical = 20.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Icon(Icons.Default.Refresh, contentDescription = "Nuova Partita", tint = MaterialTheme.colorScheme.error)
@@ -649,16 +712,17 @@ fun SwitchMaraffaRow(
 }
 
 @Composable
-fun CardImageRow(customHeight: Dp = 200.dp) {
+fun CardImageRow(modifier: Modifier = Modifier, customHeight: Dp = 200.dp) {
     Row(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.Center
     ) {
         Image(
             painter = painterResource(id = R.drawable.card),
             contentDescription = "Foto carte briscola",
             modifier = Modifier
-                .height(customHeight)
+                .heightIn(max = customHeight)
+                .fillMaxHeight()
                 .padding(top = 4.dp, bottom = 16.dp),
             alignment = Alignment.Center
         )
@@ -671,11 +735,7 @@ fun ActionButtonsRow(onAddClick: () -> Unit, onUndoClick: () -> Unit, onMenuClic
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(
-                top = 5.dp,
-                start = 15.dp,
-                end = 15.dp,
-                bottom = 0.dp),
+            .padding(15.dp),
         horizontalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         val btnRadius = getDynamicRadius(false)
@@ -720,15 +780,28 @@ fun ActionButtonsRow(onAddClick: () -> Unit, onUndoClick: () -> Unit, onMenuClic
 
 @Composable
 fun BannerPubblicitario(modifier: Modifier = Modifier) {
-    AndroidView(
-        modifier = modifier.fillMaxWidth(),
-        factory = { context ->
-            AdView(context).apply {
-                setAdSize(AdSize.BANNER)
-                // ✨ ID DEL BANNER DI TEST DI GOOGLE ✨
-                adUnitId = "ca-app-pub-3940256099942544/6300978111"
-                loadAd(AdRequest.Builder().build())
-            }
+    if (LocalInspectionMode.current) {
+        // Mostra un placeholder durante la Preview per evitare crash dovuti a Google Play Services
+        Box(
+            modifier = modifier
+                .fillMaxWidth()
+                .height(50.dp)
+                .background(Color.LightGray),
+            contentAlignment = Alignment.Center
+        ) {
+            Text("Banner Pubblicitario")
         }
-    )
+    } else {
+        AndroidView(
+            modifier = modifier.fillMaxWidth(),
+            factory = { context ->
+                AdView(context).apply {
+                    setAdSize(AdSize.BANNER)
+                    // ✨ ID DEL BANNER DI TEST DI GOOGLE ✨
+                    adUnitId = "ca-app-pub-3940256099942544/6300978111"
+                    loadAd(AdRequest.Builder().build())
+                }
+            }
+        )
+    }
 }
