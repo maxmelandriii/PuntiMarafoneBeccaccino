@@ -8,6 +8,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.maxmelandriii.contapuntimarafone.domain.Player
@@ -37,7 +38,7 @@ fun VerticalLayout(
     insertFontSize: Int = 32,
     insertHeight: Dp = 68.dp,
     maraffaFontSize: Int = 14,
-    imageHeight: Dp = 200.dp,
+    imageHeight: Dp = 230.dp,
     buttonHeight: Dp = 68.dp
 ) {
     Column(
@@ -84,7 +85,12 @@ fun VerticalLayout(
                     isMaraffaVoi = isMaraffaVoi, onMaraffaVoiChange = onMaraffaVoiChange,
                     customFontSize = maraffaFontSize, customHeight = insertHeight
                 )
-                CardImageRow(modifier = Modifier.weight(1f, fill = false), customHeight = imageHeight)
+
+                // ✨ NASCONDI IMMAGINE SE LO SCHERMO È TROPPO BASSO ✨
+                val screenHeight = LocalConfiguration.current.screenHeightDp
+                if (screenHeight > 450) {
+                    CardImageRow(modifier = Modifier.weight(1f, fill = false), customHeight = imageHeight)
+                }
             }
         }
 
@@ -186,7 +192,12 @@ fun HorizontalLayout(
                         isMaraffaVoi = isMaraffaVoi, onMaraffaVoiChange = onMaraffaVoiChange,
                         customFontSize = maraffaFontSize, customHeight = insertHeight
                     )
-                    CardImageRow(modifier = Modifier.weight(1f, fill = false), customHeight = imageHeight)
+                    
+                    // ✨ NASCONDI IMMAGINE SE LO SCHERMO È TROPPO BASSO (ES: TELEFONI IN LANDSCAPE) ✨
+                    val screenHeight = LocalConfiguration.current.screenHeightDp
+                    if (screenHeight > 450) {
+                        CardImageRow(modifier = Modifier.weight(1f, fill = false), customHeight = imageHeight)
+                    }
                 }
             }
 

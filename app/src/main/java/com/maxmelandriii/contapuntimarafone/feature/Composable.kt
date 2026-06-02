@@ -1,8 +1,12 @@
 package com.maxmelandriii.contapuntimarafone.feature
 
+import android.content.Context
 import android.os.Build
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdSize
 import com.google.android.gms.ads.AdView
@@ -62,10 +66,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.BiasAlignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -210,31 +216,62 @@ fun MenuPartita(
                                 color = MaterialTheme.colorScheme.primary,
                                 modifier = Modifier.padding(bottom = 12.dp)
                             )
-                            Row(
+
+                            // ✨ INDICATORE ANIMATO PER LO SWITCH ✨
+                            val indicatorBias by animateFloatAsState(
+                                targetValue = if (vittoriaSoglia == 31) -1f else 1f,
+                                animationSpec = spring(
+                                    dampingRatio = Spring.DampingRatioLowBouncy,
+                                    stiffness = Spring.StiffnessMediumLow
+                                ),
+                                label = "indicatorPosition"
+                            )
+
+                            Box(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .clip(smallRadius)
                                     .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
-                                    .padding(4.dp),
-                                horizontalArrangement = Arrangement.spacedBy(4.dp)
+                                    .padding(4.dp)
                             ) {
-                                listOf(31, 41).forEach { soglia ->
-                                    val isSelected = vittoriaSoglia == soglia
-                                    Box(
-                                        modifier = Modifier
-                                            .weight(1f)
-                                            .height(48.dp)
-                                            .clip(smallRadius)
-                                            .background(if (isSelected) MaterialTheme.colorScheme.primary else Color.Transparent)
-                                            .clickable { onVittoriaSogliaChange(soglia) },
-                                        contentAlignment = Alignment.Center
-                                    ) {
-                                        Text(
-                                            text = "$soglia Punti",
-                                            fontSize = 18.sp,
-                                            fontWeight = FontWeight.SemiBold,
-                                            color = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface
+                                // Lo sfondo colorato che scorre
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth(0.5f)
+                                        .height(48.dp)
+                                        .align(BiasAlignment(indicatorBias, 0f))
+                                        .clip(smallRadius)
+                                        .background(MaterialTheme.colorScheme.primary)
+                                )
+
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                                ) {
+                                    listOf(31, 41).forEach { soglia ->
+                                        val isSelected = vittoriaSoglia == soglia
+                                        val textColor by animateColorAsState(
+                                            targetValue = if (isSelected) MaterialTheme.colorScheme.onPrimary 
+                                                          else MaterialTheme.colorScheme.onSurface,
+                                            label = "textColor"
                                         )
+                                        Box(
+                                            modifier = Modifier
+                                                .weight(1f)
+                                                .height(48.dp)
+                                                .clickable(
+                                                    interactionSource = remember { MutableInteractionSource() },
+                                                    indication = null // Rimuoviamo il ripple per un look più pulito
+                                                ) { onVittoriaSogliaChange(soglia) },
+                                            contentAlignment = Alignment.Center
+                                        ) {
+                                            Text(
+                                                text = "$soglia Punti",
+                                                fontSize = 18.sp,
+                                                fontWeight = FontWeight.SemiBold,
+                                                color = textColor
+                                            )
+                                        }
                                     }
                                 }
                             }
@@ -612,12 +649,16 @@ fun SwitchMaraffaRow(
     customFontSize: Int = 14,
     customHeight: Dp = 68.dp
 ) {
-    var nomeMossa by remember { mutableStateOf("Maraffa") }
+    val context = LocalContext.current
+    val prefs = remember { context.getSharedPreferences("settings", Context.MODE_PRIVATE) }
+    var nomeMossa by remember { mutableStateOf(prefs.getString("nomeMossa", "Maraffa") ?: "Maraffa") }
     val view = LocalView.current
 
     // Isoliamo la logica dell'haptic feedback e del cambio nome per passarla comodamente ai figli
     val handleLongPress: () -> Unit = {
-        nomeMossa = if (nomeMossa == "Maraffa") "Cricca" else "Maraffa"
+        val nuovoNome = if (nomeMossa == "Maraffa") "Cricca" else "Maraffa"
+        nomeMossa = nuovoNome
+        prefs.edit().putString("nomeMossa", nuovoNome).apply()
         view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
     }
 

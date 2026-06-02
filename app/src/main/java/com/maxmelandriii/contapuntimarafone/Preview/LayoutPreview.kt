@@ -1,4 +1,4 @@
-package com.maxmelandriii.contapuntimarafone.Preview
+package com.maxmelandriii.contapuntimarafone.preview
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
