@@ -1,18 +1,9 @@
-package com.maxmelandriii.contapuntimarafone.components
+package com.maxmelandriii.contapuntimarafone.ui.components
 
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.core.LinearOutSlowInEasing
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.animateIntAsState
-import androidx.compose.animation.core.spring
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
-import androidx.compose.animation.togetherWith
+import androidx.compose.animation.*
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -20,7 +11,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
-
 
 @Composable
 fun animatedPunti(punti: Int): Int {
@@ -84,6 +74,7 @@ fun SlotNumber(punti: Int, modifier: Modifier = Modifier, customFontSize: Int) {
             textAlign = TextAlign.Center,
             fontWeight = FontWeight.Bold,
             fontSize = customFontSize.sp,
+            color = MaterialTheme.colorScheme.onSurface
         )
     }
 }

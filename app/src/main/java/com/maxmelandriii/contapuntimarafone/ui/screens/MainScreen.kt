@@ -1,7 +1,6 @@
-package com.maxmelandriii.contapuntimarafone.feature
+package com.maxmelandriii.contapuntimarafone.ui.screens
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
@@ -11,7 +10,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.maxmelandriii.contapuntimarafone.domain.Player
+import com.maxmelandriii.contapuntimarafone.ui.components.*
+import com.maxmelandriii.contapuntimarafone.domain.models.Player
 
 @Composable
 fun VerticalLayout(
@@ -89,7 +89,10 @@ fun VerticalLayout(
                 // ✨ NASCONDI IMMAGINE SE LO SCHERMO È TROPPO BASSO ✨
                 val screenHeight = LocalConfiguration.current.screenHeightDp
                 if (screenHeight > 450) {
-                    CardImageRow(modifier = Modifier.weight(1f, fill = false), customHeight = imageHeight)
+                    CardImageRow(
+                        modifier = Modifier.weight(1f, fill = false),
+                        customHeight = imageHeight
+                    )
                 }
             }
         }
@@ -196,7 +199,10 @@ fun HorizontalLayout(
                     // ✨ NASCONDI IMMAGINE SE LO SCHERMO È TROPPO BASSO (ES: TELEFONI IN LANDSCAPE) ✨
                     val screenHeight = LocalConfiguration.current.screenHeightDp
                     if (screenHeight > 450) {
-                        CardImageRow(modifier = Modifier.weight(1f, fill = false), customHeight = imageHeight)
+                        CardImageRow(
+                            modifier = Modifier.weight(1f, fill = false),
+                            customHeight = imageHeight
+                        )
                     }
                 }
             }
@@ -209,7 +215,9 @@ fun HorizontalLayout(
             ) {
                 Column(modifier = Modifier.fillMaxWidth()) {
                     ActionButtonsRow(
-                        onAddClick = onAddClick, onUndoClick = onUndoClick, onMenuClick = onMenuClick,
+                        onAddClick = onAddClick,
+                        onUndoClick = onUndoClick,
+                        onMenuClick = onMenuClick,
                         customHeight = buttonHeight
                     )
                 }

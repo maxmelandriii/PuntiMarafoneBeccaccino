@@ -1,4 +1,4 @@
-package com.maxmelandriii.contapuntimarafone.feature
+package com.maxmelandriii.contapuntimarafone.ui.screens
 
 import android.content.Intent
 import android.os.Bundle
@@ -29,7 +29,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.maxmelandriii.contapuntimarafone.MainActivity
-import com.maxmelandriii.contapuntimarafone.data.PartitaEntity
+import com.maxmelandriii.contapuntimarafone.ui.components.getDynamicRadius
+import com.maxmelandriii.contapuntimarafone.data.local.PartitaEntity
 import com.maxmelandriii.contapuntimarafone.db
 import com.maxmelandriii.contapuntimarafone.ui.theme.ContaPuntiMarafoneTheme
 import kotlinx.coroutines.launch

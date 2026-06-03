@@ -1,4 +1,4 @@
-package com.maxmelandriii.contapuntimarafone.domain
+package com.maxmelandriii.contapuntimarafone.domain.models
 
 interface Squadra {
     val nome: String

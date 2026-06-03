@@ -3,12 +3,12 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <application
-
+        android:name=".MarafoneApplication"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher"
-        android:label="Conta Punti Marafone Beccaccino"
+         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/Theme.ContaPuntiMarafone">
         <meta-data
@@ -28,7 +28,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".feature.History" android:exported="false"/>
+        <activity android:name=".ui.screens.History" android:exported="false"/>
     </application>
 
     <queries>

@@ -1,9 +1,10 @@
-package com.maxmelandriii.contapuntimarafone.domain
+package com.maxmelandriii.contapuntimarafone.domain.models
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+
 class Player(override val nome: String) : Squadra {
     override var punti by mutableIntStateOf(0)
         private set

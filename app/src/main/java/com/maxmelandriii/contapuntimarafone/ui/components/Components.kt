@@ -1,4 +1,4 @@
-package com.maxmelandriii.contapuntimarafone.components
+package com.maxmelandriii.contapuntimarafone.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -33,7 +33,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.maxmelandriii.contapuntimarafone.feature.getDynamicRadius
 
 @Composable
 fun RowScope.SquadNameField(

@@ -1,4 +1,4 @@
-package com.maxmelandriii.contapuntimarafone.data
+package com.maxmelandriii.contapuntimarafone.data.local
 
 import androidx.room.Dao
 import androidx.room.Database
@@ -36,7 +36,6 @@ interface PartitaDao {
     @Delete
     suspend fun deletePartita(partita: PartitaEntity)
 
-    // ✨ LA NUOVA QUERY PER IL RECUPERO CHIRURGICO ✨
     @Query("SELECT * FROM partite_cronologia WHERE id = :id LIMIT 1")
     suspend fun getPartitaById(id: Int): PartitaEntity?
 

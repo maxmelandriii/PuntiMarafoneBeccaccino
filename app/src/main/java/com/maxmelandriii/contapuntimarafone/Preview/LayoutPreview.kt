@@ -16,10 +16,15 @@ import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.maxmelandriii.contapuntimarafone.data.PartitaEntity
-import com.maxmelandriii.contapuntimarafone.domain.Player
-import com.maxmelandriii.contapuntimarafone.feature.*
+import com.maxmelandriii.contapuntimarafone.data.local.PartitaEntity
+import com.maxmelandriii.contapuntimarafone.domain.models.Player
 import com.maxmelandriii.contapuntimarafone.ui.theme.ContaPuntiMarafoneTheme
+import com.maxmelandriii.contapuntimarafone.ui.screens.HistoryCard
+import com.maxmelandriii.contapuntimarafone.ui.screens.HorizontalLayout
+import com.maxmelandriii.contapuntimarafone.ui.components.MenuPartita
+import com.maxmelandriii.contapuntimarafone.ui.components.PopupChangePoint
+import com.maxmelandriii.contapuntimarafone.ui.components.PopupVictory
+import com.maxmelandriii.contapuntimarafone.ui.screens.VerticalLayout
 
 @Preview(showBackground = true, device = Devices.PIXEL_7, name = "1. Layout Verticale (Smartphone)")
 @Composable
