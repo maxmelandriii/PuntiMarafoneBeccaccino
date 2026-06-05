@@ -31,84 +31,91 @@ fun VerticalLayout(
     onAddClick: () -> Unit,
     onUndoClick: () -> Unit,
     onMenuClick: () -> Unit,
-    // ✨ I TUOI DATI ESATTI MESSI COME DEFAULT! ✨
-    iconSize: Dp = 25.dp,
-    nameSize: Int = 18,
-    pointSize: Int = 85,
-    insertFontSize: Int = 32,
-    insertHeight: Dp = 68.dp,
-    maraffaFontSize: Int = 14,
-    imageHeight: Dp = 230.dp,
-    buttonHeight: Dp = 68.dp
+    isTablet: Boolean = false,
+    // ✨ VALORI OTTIMIZZATI PER TABLET VS PHONE ✨
+    iconSize: Dp = if (isTablet) 45.dp else 25.dp,
+    nameSize: Int = if (isTablet) 28 else 18,
+    pointSize: Int = if (isTablet) 140 else 85,
+    insertFontSize: Int = if (isTablet) 42 else 32,
+    insertHeight: Dp = if (isTablet) 90.dp else 68.dp,
+    maraffaFontSize: Int = if (isTablet) 20 else 14,
+    imageHeight: Dp = if (isTablet) 350.dp else 230.dp,
+    buttonHeight: Dp = if (isTablet) 90.dp else 68.dp
 ) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .widthIn(max = 600.dp)
             .padding(
-                top = innerPadding.calculateTopPadding() + 8.dp,
-                bottom = innerPadding.calculateBottomPadding() + 8.dp
+                top = innerPadding.calculateTopPadding(),
+                bottom = innerPadding.calculateBottomPadding()
             ),
-        verticalArrangement = Arrangement.SpaceBetween
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         BannerPubblicitario()
-        
-        // --- BLOCCO 1: PUNTEGGI ---
-        Column(modifier = Modifier.fillMaxWidth().padding(bottom = 9.dp)) {
-            WinnerBannerRow(puntiVoi = voi.punti, puntiNoi = noi.punti, customIconSize = iconSize)
-            NameBarRow(
-                nomeNoi = noi.nomeSquad, onNomeNoiChange = onNomeNoiChange,
-                nomeVoi = voi.nomeSquad, onNomeVoiChange = onNomeVoiChange,
-                customFontSize = nameSize
-            )
-            PointSquadRow(puntiNoi = noi.punti, puntiVoi = voi.punti, customFontSize = pointSize)
-        }
 
-        // --- BLOCCO 2: INSERIMENTO E MARAFFA ---
-        Card(
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f, fill = false)
-                .padding(horizontal = 15.dp, vertical = 15.dp),
-            shape = getDynamicRadius(),
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
-            elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+                .weight(1f)
+                .widthIn(max = if (isTablet) 700.dp else 600.dp)
+                .padding(horizontal = if (isTablet) 32.dp else 0.dp),
+            verticalArrangement = if (isTablet) Arrangement.spacedBy(32.dp, Alignment.CenterVertically) else Arrangement.SpaceBetween,
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Column(modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp)) {
-                InsertPointSquadRow(
-                    puntiNoi = puntiInseritiNoi, onPuntiNoiChange = onPuntiNoiChange,
-                    puntiVoi = puntiInseritiVoi, onPuntiVoiChange = onPuntiVoiChange,
-                    customFontSize = insertFontSize, customHeight = insertHeight
+            // --- BLOCCO 1: PUNTEGGI ---
+            Column(modifier = Modifier.fillMaxWidth().padding(bottom = if (isTablet) 16.dp else 9.dp)) {
+                WinnerBannerRow(puntiVoi = voi.punti, puntiNoi = noi.punti, customIconSize = iconSize)
+                NameBarRow(
+                    nomeNoi = noi.nomeSquad, onNomeNoiChange = onNomeNoiChange,
+                    nomeVoi = voi.nomeSquad, onNomeVoiChange = onNomeVoiChange,
+                    customFontSize = nameSize
                 )
-                SwitchMaraffaRow(
-                    isMaraffaNoi = isMaraffaNoi, onMaraffaNoiChange = onMaraffaNoiChange,
-                    isMaraffaVoi = isMaraffaVoi, onMaraffaVoiChange = onMaraffaVoiChange,
-                    customFontSize = maraffaFontSize, customHeight = insertHeight
-                )
+                PointSquadRow(puntiNoi = noi.punti, puntiVoi = voi.punti, customFontSize = pointSize)
+            }
 
-                // ✨ NASCONDI IMMAGINE SE LO SCHERMO È TROPPO BASSO ✨
-                val screenHeight = LocalConfiguration.current.screenHeightDp
-                if (screenHeight > 450) {
-                    CardImageRow(
-                        modifier = Modifier.weight(1f, fill = false),
-                        customHeight = imageHeight
+            // --- BLOCCO 2: INSERIMENTO E MARAFFA ---
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 15.dp),
+                shape = getDynamicRadius(),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+                elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+            ) {
+                Column(modifier = Modifier.fillMaxWidth().padding(vertical = if (isTablet) 24.dp else 12.dp)) {
+                    InsertPointSquadRow(
+                        puntiNoi = puntiInseritiNoi, onPuntiNoiChange = onPuntiNoiChange,
+                        puntiVoi = puntiInseritiVoi, onPuntiVoiChange = onPuntiVoiChange,
+                        customFontSize = insertFontSize, customHeight = insertHeight
                     )
+                    SwitchMaraffaRow(
+                        isMaraffaNoi = isMaraffaNoi, onMaraffaNoiChange = onMaraffaNoiChange,
+                        isMaraffaVoi = isMaraffaVoi, onMaraffaVoiChange = onMaraffaVoiChange,
+                        customFontSize = maraffaFontSize, customHeight = insertHeight
+                    )
+
+                    val screenHeight = LocalConfiguration.current.screenHeightDp
+                    if (screenHeight > 450) {
+                        CardImageRow(
+                            modifier = Modifier.heightIn(max = imageHeight),
+                            customHeight = imageHeight
+                        )
+                    }
                 }
             }
-        }
 
-        // --- BLOCCO 3: COMANDI ---
-        Card(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 15.dp, vertical = 0.dp),
-            shape = getDynamicRadius(),
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
-            elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
-        ) {
-            Column(modifier = Modifier.fillMaxWidth()) {
-                ActionButtonsRow(
-                    onAddClick = onAddClick, onUndoClick = onUndoClick, onMenuClick = onMenuClick,
-                    customHeight = buttonHeight
-                )
+            // --- BLOCCO 3: COMANDI ---
+            Card(
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 15.dp),
+                shape = getDynamicRadius(),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+                elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+            ) {
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    ActionButtonsRow(
+                        onAddClick = onAddClick, onUndoClick = onUndoClick, onMenuClick = onMenuClick,
+                        customHeight = buttonHeight
+                    )
+                }
             }
         }
     }
@@ -132,14 +139,15 @@ fun HorizontalLayout(
     onAddClick: () -> Unit,
     onUndoClick: () -> Unit,
     onMenuClick: () -> Unit,
-    iconSize: Dp = 40.dp,
-    nameSize: Int = 24,
-    pointSize: Int = 120,
-    insertFontSize: Int = 32,
-    insertHeight: Dp = 80.dp,
-    maraffaFontSize: Int = 14,
-    imageHeight: Dp = 290.dp,
-    buttonHeight: Dp = 80.dp
+    isTablet: Boolean = false,
+    iconSize: Dp = if (isTablet) 55.dp else 40.dp,
+    nameSize: Int = if (isTablet) 32 else 24,
+    pointSize: Int = if (isTablet) 160 else 120,
+    insertFontSize: Int = if (isTablet) 42 else 32,
+    insertHeight: Dp = if (isTablet) 90.dp else 80.dp,
+    maraffaFontSize: Int = if (isTablet) 20 else 14,
+    imageHeight: Dp = if (isTablet) 400.dp else 290.dp,
+    buttonHeight: Dp = if (isTablet) 90.dp else 80.dp
 ) {
     Row(
         modifier = Modifier

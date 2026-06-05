@@ -9,8 +9,13 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
@@ -34,6 +39,7 @@ import com.maxmelandriii.contapuntimarafone.ui.screens.History
 import com.maxmelandriii.contapuntimarafone.ui.screens.HorizontalLayout
 import com.maxmelandriii.contapuntimarafone.ui.screens.VerticalLayout
 import com.maxmelandriii.contapuntimarafone.ui.viewmodel.MainViewModel
+
 val db: AppDatabase get() = MarafoneApplication.instance.database
 
 class MainViewModelFactory(private val dao: PartitaDao) : ViewModelProvider.Factory {
@@ -56,8 +62,9 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         setContent {
-            val viewModel: MainViewModel = viewModel(factory = MainViewModelFactory(db.partitaDao()))
-            
+            val viewModel: MainViewModel =
+                viewModel(factory = MainViewModelFactory(db.partitaDao()))
+
             val windowSizeClass = calculateWindowSizeClass(this)
             val configuration = LocalConfiguration.current
             val isCompact = windowSizeClass.widthSizeClass == WindowWidthSizeClass.Compact
@@ -75,99 +82,112 @@ class MainActivity : ComponentActivity() {
                 val isDark = isSystemInDarkTheme()
                 val iosBgColor = if (isDark) Color.Black else Color.White
 
-                Scaffold(
+                Surface(
                     modifier = Modifier.fillMaxSize(),
-                    containerColor = iosBgColor
-                ) { innerPadding ->
-                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        if (isLandscape && !isCompact) {
-                            HorizontalLayout(
-                                innerPadding = innerPadding,
-                                noi = viewModel.noi,
-                                voi = viewModel.voi,
-                                puntiInseritiNoi = viewModel.puntiInseritiNoi,
-                                puntiInseritiVoi = viewModel.puntiInseritiVoi,
-                                isMaraffaNoi = viewModel.isMaraffaNoi,
-                                isMaraffaVoi = viewModel.isMaraffaVoi,
-                                onNomeNoiChange = {
-                                    viewModel.noi.nomeSquad = it; viewModel.salvaStatoInDB()
+                    color = iosBgColor
+                ) {
+                    Scaffold(
+                        modifier = Modifier.fillMaxSize(),
+                        containerColor = Color.Transparent,
+                        contentWindowInsets = WindowInsets.safeDrawing
+                    ) { innerPadding ->
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(innerPadding),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            if (isLandscape && !isCompact) {
+                                HorizontalLayout(
+                                    innerPadding = innerPadding,
+                                    noi = viewModel.noi,
+                                    voi = viewModel.voi,
+                                    puntiInseritiNoi = viewModel.puntiInseritiNoi,
+                                    puntiInseritiVoi = viewModel.puntiInseritiVoi,
+                                    isMaraffaNoi = viewModel.isMaraffaNoi,
+                                    isMaraffaVoi = viewModel.isMaraffaVoi,
+                                    onNomeNoiChange = {
+                                        viewModel.noi.nomeSquad = it; viewModel.salvaStatoInDB()
+                                    },
+                                    onNomeVoiChange = {
+                                        viewModel.voi.nomeSquad = it; viewModel.salvaStatoInDB()
+                                    },
+                                    onPuntiNoiChange = { viewModel.handlePuntiChange(it, true) },
+                                    onPuntiVoiChange = { viewModel.handlePuntiChange(it, false) },
+                                    onMaraffaNoiChange = { viewModel.isMaraffaNoi = it },
+                                    onMaraffaVoiChange = { viewModel.isMaraffaVoi = it },
+                                    onAddClick = { viewModel.addPoints() },
+                                    onUndoClick = { viewModel.undo() },
+                                    onMenuClick = { viewModel.mostraMenuSheet = true },
+                                    isTablet = !isCompact
+                                )
+                            } else {
+                                VerticalLayout(
+                                    innerPadding = innerPadding,
+                                    noi = viewModel.noi,
+                                    voi = viewModel.voi,
+                                    puntiInseritiNoi = viewModel.puntiInseritiNoi,
+                                    puntiInseritiVoi = viewModel.puntiInseritiVoi,
+                                    isMaraffaNoi = viewModel.isMaraffaNoi,
+                                    isMaraffaVoi = viewModel.isMaraffaVoi,
+                                    onNomeNoiChange = {
+                                        viewModel.noi.nomeSquad = it; viewModel.salvaStatoInDB()
+                                    },
+                                    onNomeVoiChange = {
+                                        viewModel.voi.nomeSquad = it; viewModel.salvaStatoInDB()
+                                    },
+                                    onPuntiNoiChange = { viewModel.handlePuntiChange(it, true) },
+                                    onPuntiVoiChange = { viewModel.handlePuntiChange(it, false) },
+                                    onMaraffaNoiChange = { viewModel.isMaraffaNoi = it },
+                                    onMaraffaVoiChange = { viewModel.isMaraffaVoi = it },
+                                    onAddClick = { viewModel.addPoints() },
+                                    onUndoClick = { viewModel.undo() },
+                                    onMenuClick = { viewModel.mostraMenuSheet = true },
+                                    isTablet = !isCompact
+                                )
+                            }
+
+                            MenuPartita(
+                                showMenu = viewModel.mostraMenuSheet,
+                                onDismiss = { viewModel.mostraMenuSheet = false },
+                                onApriPopup = { viewModel.mostraPopup = true },
+                                onNuovaPartita = { viewModel.nuovaPartita() },
+                                onApriCronologia = {
+                                    val intent = Intent(this@MainActivity, History::class.java)
+                                    startActivity(intent)
                                 },
-                                onNomeVoiChange = {
-                                    viewModel.voi.nomeSquad = it; viewModel.salvaStatoInDB()
-                                },
-                                onPuntiNoiChange = { viewModel.handlePuntiChange(it, true) },
-                                onPuntiVoiChange = { viewModel.handlePuntiChange(it, false) },
-                                onMaraffaNoiChange = { viewModel.isMaraffaNoi = it },
-                                onMaraffaVoiChange = { viewModel.isMaraffaVoi = it },
-                                onAddClick = { viewModel.addPoints() },
-                                onUndoClick = { viewModel.undo() },
-                                onMenuClick = { viewModel.mostraMenuSheet = true }
+                                vittoriaSoglia = viewModel.vittoriaSoglia,
+                                onVittoriaSogliaChange = {
+                                    viewModel.vittoriaSoglia = it; viewModel.salvaStatoInDB()
+                                }
                             )
-                        } else {
-                            VerticalLayout(
-                                innerPadding = innerPadding,
-                                noi = viewModel.noi,
-                                voi = viewModel.voi,
-                                puntiInseritiNoi = viewModel.puntiInseritiNoi,
-                                puntiInseritiVoi = viewModel.puntiInseritiVoi,
-                                isMaraffaNoi = viewModel.isMaraffaNoi,
-                                isMaraffaVoi = viewModel.isMaraffaVoi,
-                                onNomeNoiChange = {
-                                    viewModel.noi.nomeSquad = it; viewModel.salvaStatoInDB()
+
+                            PopupChangePoint(
+                                showPopup = viewModel.mostraPopup,
+                                onDismiss = { viewModel.mostraPopup = false },
+                                onSave = { pNoi, pVoi ->
+                                    viewModel.noi.setPoint(pNoi.toIntOrNull() ?: 0)
+                                    viewModel.voi.setPoint(pVoi.toIntOrNull() ?: 0)
+                                    viewModel.salvaStatoInDB()
                                 },
-                                onNomeVoiChange = {
-                                    viewModel.voi.nomeSquad = it; viewModel.salvaStatoInDB()
+                                nomeNoi = viewModel.noi.nomeSquad,
+                                nomeVoi = viewModel.voi.nomeSquad
+                            )
+
+                            PopupVictory(
+                                showPopup = viewModel.mostraPopupVittoria,
+                                onDismiss = { viewModel.mostraPopupVittoria = false },
+                                onNuovaPartita = { viewModel.nuovaPartita() },
+                                onContinue = {
+                                    viewModel.continuaOltreSoglia =
+                                        true; viewModel.mostraPopupVittoria = false
                                 },
-                                onPuntiNoiChange = { viewModel.handlePuntiChange(it, true) },
-                                onPuntiVoiChange = { viewModel.handlePuntiChange(it, false) },
-                                onMaraffaNoiChange = { viewModel.isMaraffaNoi = it },
-                                onMaraffaVoiChange = { viewModel.isMaraffaVoi = it },
-                                onAddClick = { viewModel.addPoints() },
-                                onUndoClick = { viewModel.undo() },
-                                onMenuClick = { viewModel.mostraMenuSheet = true }
+                                nomeNoi = viewModel.noi.nomeSquad,
+                                nomeVoi = viewModel.voi.nomeSquad,
+                                puntiNoi = viewModel.noi.punti,
+                                puntiVoi = viewModel.voi.punti
                             )
                         }
-
-                        MenuPartita(
-                            showMenu = viewModel.mostraMenuSheet,
-                            onDismiss = { viewModel.mostraMenuSheet = false },
-                            onApriPopup = { viewModel.mostraPopup = true },
-                            onNuovaPartita = { viewModel.nuovaPartita() },
-                            onApriCronologia = {
-                                val intent = Intent(this@MainActivity, History::class.java)
-                                startActivity(intent)
-                            },
-                            vittoriaSoglia = viewModel.vittoriaSoglia,
-                            onVittoriaSogliaChange = {
-                                viewModel.vittoriaSoglia = it; viewModel.salvaStatoInDB()
-                            }
-                        )
-
-                        PopupChangePoint(
-                            showPopup = viewModel.mostraPopup,
-                            onDismiss = { viewModel.mostraPopup = false },
-                            onSave = { pNoi, pVoi ->
-                                viewModel.noi.setPoint(pNoi.toIntOrNull() ?: 0)
-                                viewModel.voi.setPoint(pVoi.toIntOrNull() ?: 0)
-                                viewModel.salvaStatoInDB()
-                            },
-                            nomeNoi = viewModel.noi.nomeSquad,
-                            nomeVoi = viewModel.voi.nomeSquad
-                        )
-
-                        PopupVictory(
-                            showPopup = viewModel.mostraPopupVittoria,
-                            onDismiss = { viewModel.mostraPopupVittoria = false },
-                            onNuovaPartita = { viewModel.nuovaPartita() },
-                            onContinue = {
-                                viewModel.continuaOltreSoglia =
-                                    true; viewModel.mostraPopupVittoria = false
-                            },
-                            nomeNoi = viewModel.noi.nomeSquad,
-                            nomeVoi = viewModel.voi.nomeSquad,
-                            puntiNoi = viewModel.noi.punti,
-                            puntiVoi = viewModel.voi.punti
-                        )
                     }
                 }
             }

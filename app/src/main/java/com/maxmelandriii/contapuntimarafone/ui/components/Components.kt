@@ -49,7 +49,7 @@ fun RowScope.SquadNameField(
             textAlign = TextAlign.Center,
             fontSize = customFontSize.sp,
             fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onSurface
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         ),
         singleLine = true,
         decorationBox = { innerTextField ->
@@ -88,7 +88,7 @@ fun RowScope.SquadScoreInputField(
         BasicTextField(
             value = value,
             onValueChange = onValueChange,
-            textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.Center, fontSize = customFontSize.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface),
+            textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.Center, fontSize = customFontSize.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurfaceVariant),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             singleLine = true,
             decorationBox = { innerTextField ->

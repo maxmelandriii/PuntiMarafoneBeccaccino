@@ -14,6 +14,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.*
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -737,9 +738,10 @@ fun ActionButtonsRow(onAddClick: () -> Unit, onUndoClick: () -> Unit, onMenuClic
             modifier = Modifier.weight(1f).height(customHeight), // ✨ ALTEZZA DINAMICA ✨
             shape = btnRadius,
             colors = ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                contentColor = MaterialTheme.colorScheme.onSecondaryContainer
-            )
+                containerColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                contentColor = MaterialTheme.colorScheme.surfaceVariant
+            ),
+            elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp)
         ) {
             Icon(Icons.Filled.Menu, "Menu", modifier = Modifier.size(28.dp))
         }
@@ -749,11 +751,12 @@ fun ActionButtonsRow(onAddClick: () -> Unit, onUndoClick: () -> Unit, onMenuClic
             modifier = Modifier.weight(1f).height(customHeight), // ✨ ALTEZZA DINAMICA ✨
             shape = btnRadius,
             colors = ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                contentColor = MaterialTheme.colorScheme.onSecondaryContainer
-            )
+                containerColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                contentColor = MaterialTheme.colorScheme.surfaceVariant
+            ),
+            elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp)
         ) {
-            Icon(imageVector = Icons.Default.Undo, contentDescription = "Annulla", modifier = Modifier.size(ButtonDefaults.IconSize))
+            Icon(imageVector = Icons.AutoMirrored.Filled.Undo, contentDescription = "Annulla", modifier = Modifier.size(ButtonDefaults.IconSize))
         }
 
         Button(
@@ -763,7 +766,8 @@ fun ActionButtonsRow(onAddClick: () -> Unit, onUndoClick: () -> Unit, onMenuClic
             colors = ButtonDefaults.buttonColors(
                 containerColor = MaterialTheme.colorScheme.primary,
                 contentColor = MaterialTheme.colorScheme.onPrimary
-            )
+            ),
+            elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)
         ) {
             Icon(imageVector = Icons.Default.Add, contentDescription = "Icona Aggiungi", modifier = Modifier.size(ButtonDefaults.IconSize))
         }
