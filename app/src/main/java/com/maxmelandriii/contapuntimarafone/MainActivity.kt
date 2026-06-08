@@ -7,10 +7,10 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
@@ -27,7 +27,6 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import androidx.room.Room
 import com.google.android.gms.ads.MobileAds
 import com.maxmelandriii.contapuntimarafone.ui.theme.ContaPuntiMarafoneTheme
 import com.maxmelandriii.contapuntimarafone.data.local.AppDatabase
@@ -56,6 +55,7 @@ class MainActivity : ComponentActivity() {
 
     @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
+        installSplashScreen()
         super.onCreate(savedInstanceState)
         MobileAds.initialize(this) {}
 
@@ -107,10 +107,10 @@ class MainActivity : ComponentActivity() {
                                     isMaraffaNoi = viewModel.isMaraffaNoi,
                                     isMaraffaVoi = viewModel.isMaraffaVoi,
                                     onNomeNoiChange = {
-                                        viewModel.noi.nomeSquad = it; viewModel.salvaStatoInDB()
+                                        viewModel.updateNomeSquadra(it, true)
                                     },
                                     onNomeVoiChange = {
-                                        viewModel.voi.nomeSquad = it; viewModel.salvaStatoInDB()
+                                        viewModel.updateNomeSquadra(it, false)
                                     },
                                     onPuntiNoiChange = { viewModel.handlePuntiChange(it, true) },
                                     onPuntiVoiChange = { viewModel.handlePuntiChange(it, false) },
@@ -119,7 +119,9 @@ class MainActivity : ComponentActivity() {
                                     onAddClick = { viewModel.addPoints() },
                                     onUndoClick = { viewModel.undo() },
                                     onMenuClick = { viewModel.mostraMenuSheet = true },
-                                    isTablet = !isCompact
+                                    isTablet = !isCompact,
+                                    fireNoi = viewModel.lastIncrementWas11Noi,
+                                    fireVoi = viewModel.lastIncrementWas11Voi
                                 )
                             } else {
                                 VerticalLayout(
@@ -131,10 +133,10 @@ class MainActivity : ComponentActivity() {
                                     isMaraffaNoi = viewModel.isMaraffaNoi,
                                     isMaraffaVoi = viewModel.isMaraffaVoi,
                                     onNomeNoiChange = {
-                                        viewModel.noi.nomeSquad = it; viewModel.salvaStatoInDB()
+                                        viewModel.updateNomeSquadra(it, true)
                                     },
                                     onNomeVoiChange = {
-                                        viewModel.voi.nomeSquad = it; viewModel.salvaStatoInDB()
+                                        viewModel.updateNomeSquadra(it, false)
                                     },
                                     onPuntiNoiChange = { viewModel.handlePuntiChange(it, true) },
                                     onPuntiVoiChange = { viewModel.handlePuntiChange(it, false) },
@@ -143,7 +145,9 @@ class MainActivity : ComponentActivity() {
                                     onAddClick = { viewModel.addPoints() },
                                     onUndoClick = { viewModel.undo() },
                                     onMenuClick = { viewModel.mostraMenuSheet = true },
-                                    isTablet = !isCompact
+                                    isTablet = !isCompact,
+                                    fireNoi = viewModel.lastIncrementWas11Noi,
+                                    fireVoi = viewModel.lastIncrementWas11Voi
                                 )
                             }
 
@@ -177,7 +181,10 @@ class MainActivity : ComponentActivity() {
                             PopupVictory(
                                 showPopup = viewModel.mostraPopupVittoria,
                                 onDismiss = { viewModel.mostraPopupVittoria = false },
-                                onNuovaPartita = { viewModel.nuovaPartita() },
+                                onNuovaPartita = {
+                                    viewModel.nuovaPartita()
+                                    viewModel.mostraPopupVittoria = false
+                                },
                                 onContinue = {
                                     viewModel.continuaOltreSoglia =
                                         true; viewModel.mostraPopupVittoria = false

@@ -22,6 +22,8 @@ fun VerticalLayout(
     puntiInseritiVoi: String,
     isMaraffaNoi: Boolean,
     isMaraffaVoi: Boolean,
+    fireNoi: Boolean = false,
+    fireVoi: Boolean = false,
     onNomeNoiChange: (String) -> Unit,
     onNomeVoiChange: (String) -> Unit,
     onPuntiNoiChange: (String) -> Unit,
@@ -51,7 +53,10 @@ fun VerticalLayout(
             ),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        BannerPubblicitario()
+        // ✨ BANNER SEMPRE VISIBILE IN ALTO ✨
+        Box(modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)) {
+            BannerPubblicitario()
+        }
 
         Column(
             modifier = Modifier
@@ -69,7 +74,13 @@ fun VerticalLayout(
                     nomeVoi = voi.nomeSquad, onNomeVoiChange = onNomeVoiChange,
                     customFontSize = nameSize
                 )
-                PointSquadRow(puntiNoi = noi.punti, puntiVoi = voi.punti, customFontSize = pointSize)
+                PointSquadRow(
+                    puntiNoi = noi.punti,
+                    puntiVoi = voi.punti,
+                    fireNoi = fireNoi,
+                    fireVoi = fireVoi,
+                    customFontSize = pointSize
+                )
             }
 
             // --- BLOCCO 2: INSERIMENTO E MARAFFA ---
@@ -130,6 +141,8 @@ fun HorizontalLayout(
     puntiInseritiVoi: String,
     isMaraffaNoi: Boolean,
     isMaraffaVoi: Boolean,
+    fireNoi: Boolean = false,
+    fireVoi: Boolean = false,
     onNomeNoiChange: (String) -> Unit,
     onNomeVoiChange: (String) -> Unit,
     onPuntiNoiChange: (String) -> Unit,
@@ -174,20 +187,29 @@ fun HorizontalLayout(
                 nomeVoi = voi.nomeSquad, onNomeVoiChange = onNomeVoiChange,
                 customFontSize = nameSize
             )
-            PointSquadRow(puntiNoi = noi.punti, puntiVoi = voi.punti, customFontSize = pointSize)
+            PointSquadRow(
+                puntiNoi = noi.punti,
+                puntiVoi = voi.punti,
+                fireNoi = fireNoi,
+                fireVoi = fireVoi,
+                customFontSize = pointSize
+            )
         }
 
         // --- COLONNA DESTRA: I Controlli ---
         Column(
             modifier = Modifier.weight(1f).fillMaxHeight(),
-            verticalArrangement = Arrangement.SpaceBetween
+            verticalArrangement = Arrangement.SpaceBetween,
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             BannerPubblicitario()
+            
+            // --- BOX CONTROLLI (FLESSIBILE) ---
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .weight(1f, fill = false)
-                    .padding(horizontal = 8.dp, vertical = 12.dp),
+                    .weight(1f, fill = false) // ✨ SI ADATTA ALLO SPAZIO SENZA COPRIRE I TASTI ✨
+                    .padding(vertical = 6.dp),
                 shape = getDynamicRadius(),
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
                 elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
@@ -203,32 +225,30 @@ fun HorizontalLayout(
                         isMaraffaVoi = isMaraffaVoi, onMaraffaVoiChange = onMaraffaVoiChange,
                         customFontSize = maraffaFontSize, customHeight = insertHeight
                     )
-                    
-                    // ✨ NASCONDI IMMAGINE SE LO SCHERMO È TROPPO BASSO (ES: TELEFONI IN LANDSCAPE) ✨
+
                     val screenHeight = LocalConfiguration.current.screenHeightDp
-                    if (screenHeight > 450) {
+                    if (screenHeight > 400) {
                         CardImageRow(
-                            modifier = Modifier.weight(1f, fill = false),
+                            modifier = Modifier.heightIn(max = imageHeight),
                             customHeight = imageHeight
                         )
                     }
                 }
             }
 
+            // --- BOX PULSANTI (FISSO IN FONDO) ---
             Card(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 12.dp),
+                modifier = Modifier.fillMaxWidth().padding(vertical = 6.dp),
                 shape = getDynamicRadius(),
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
                 elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
             ) {
-                Column(modifier = Modifier.fillMaxWidth()) {
-                    ActionButtonsRow(
-                        onAddClick = onAddClick,
-                        onUndoClick = onUndoClick,
-                        onMenuClick = onMenuClick,
-                        customHeight = buttonHeight
-                    )
-                }
+                ActionButtonsRow(
+                    onAddClick = onAddClick,
+                    onUndoClick = onUndoClick,
+                    onMenuClick = onMenuClick,
+                    customHeight = buttonHeight
+                )
             }
         }
     }

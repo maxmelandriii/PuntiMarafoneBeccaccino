@@ -1,6 +1,7 @@
 package com.maxmelandriii.contapuntimarafone.ui.components
 
 import android.content.Context
+import android.content.Intent
 import android.view.HapticFeedbackConstants
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
@@ -41,6 +42,11 @@ import com.google.android.gms.ads.AdView
 import com.maxmelandriii.contapuntimarafone.R
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import nl.dionsegijn.konfetti.compose.KonfettiView
+import nl.dionsegijn.konfetti.core.Party
+import nl.dionsegijn.konfetti.core.Position
+import nl.dionsegijn.konfetti.core.emitter.Emitter
+import java.util.concurrent.TimeUnit
 
 // ✨ UTILITY PER IL LOOK COORDINATO (SAMSUNG VS OTHERS) ✨
 @Composable
@@ -379,51 +385,108 @@ fun PopupVictory(
     puntiVoi: Int
 ) {
     if (showPopup) {
-        AlertDialog(
-            shape = getDynamicRadius(),
-            containerColor = MaterialTheme.colorScheme.surface,
-            onDismissRequest = onDismiss,
-            title = {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Center
-                ) {
-                    Icon(
-                        Icons.Default.EmojiEvents,
-                        contentDescription = "Vittoria",
-                        tint = Color(0xFFD4AF37),
-                        modifier = Modifier.size(60.dp)
-                    )
-                }
-            },
-            text = {
-                val labelNoi = if (nomeNoi.isEmpty()) "Noi" else nomeNoi
-                val labelVoi = if (nomeVoi.isEmpty()) "Voi" else nomeVoi
-                val vincitore = if (puntiNoi > puntiVoi) labelNoi else labelVoi
+        val labelNoi = if (nomeNoi.isEmpty()) "Noi" else nomeNoi
+        val labelVoi = if (nomeVoi.isEmpty()) "Voi" else nomeVoi
+        val vincitore = if (puntiNoi > puntiVoi) labelNoi else labelVoi
+        val view = LocalView.current
+        val context = LocalContext.current
 
-                Column(
-                    modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text(
-                        text = "VITTORIA PER $vincitore!",
-                        textAlign = TextAlign.Center,
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.ExtraBold
-                    )
-                }
-            },
-            confirmButton = {
-                TextButton(onClick = onNuovaPartita) {
-                    Text("Nuova Partita", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = MaterialTheme.colorScheme.primary)
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = onContinue) {
-                    Text("Continua", fontSize = 16.sp, color = MaterialTheme.colorScheme.error)
-                }
-            },
-        )
+        LaunchedEffect(Unit) {
+            view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
+        }
+
+        // ✨ CONFIGURAZIONE CORIANDOLI ✨
+        val party = remember {
+            Party(
+                speed = 0f,
+                maxSpeed = 30f,
+                damping = 0.9f,
+                spread = 360,
+                colors = listOf(0xFFD4AF37.toInt(), 0xFFDAA520.toInt(), 0xFFFFFFFF.toInt(), 0xFF4CAF50.toInt()),
+                position = Position.Relative(0.5, 0.3),
+                emitter = Emitter(duration = 100, TimeUnit.MILLISECONDS).max(100)
+            )
+        }
+
+        Box(modifier = Modifier.fillMaxSize()) {
+            KonfettiView(
+                modifier = Modifier.fillMaxSize(),
+                parties = listOf(party),
+                updateListener = null
+            )
+
+            AlertDialog(
+                shape = getDynamicRadius(),
+                containerColor = MaterialTheme.colorScheme.surface,
+                onDismissRequest = onDismiss,
+                title = {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        Icon(
+                            Icons.Default.EmojiEvents,
+                            contentDescription = "Vittoria",
+                            tint = Color(0xFFD4AF37),
+                            modifier = Modifier.size(60.dp)
+                        )
+                    }
+                },
+                text = {
+                    Column(
+                        modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            text = "VITTORIA PER $vincitore!",
+                            textAlign = TextAlign.Center,
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.ExtraBold
+                        )
+                        
+                        Spacer(modifier = Modifier.height(16.dp))
+                        
+                        // ✨ PULSANTE CONDIVIDI ✨
+                        OutlinedButton(
+                            onClick = {
+                                val sendIntent: Intent = Intent().apply {
+                                    action = Intent.ACTION_SEND
+                                    putExtra(Intent.EXTRA_TEXT, """
+                                        🏆 VITTORIA A MARAFONE! 🏆
+                                        
+                                        Abbiamo trionfato! 
+                                        🔴 $labelNoi: $puntiNoi
+                                        🔵 $labelVoi: $puntiVoi
+                                        
+                                        Segna anche tu i punti con l'app Punti Marafone Beccaccino!
+                                        Scaricala qui: https://play.google.com/store/apps/details?id=com.maxmelandriii.contapuntimarafone
+                                    """.trimIndent())
+                                    type = "text/plain"
+                                }
+                                val shareIntent = Intent.createChooser(sendIntent, null)
+                                context.startActivity(shareIntent)
+                            },
+                            shape = getDynamicRadius(false),
+                            border = ButtonDefaults.outlinedButtonBorder.copy(width = 2.dp)
+                        ) {
+                            Icon(Icons.Default.Share, contentDescription = null)
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text("Sbeffeggia gli avversari", fontWeight = FontWeight.Bold)
+                        }
+                    }
+                },
+                confirmButton = {
+                    TextButton(onClick = onNuovaPartita) {
+                        Text("Nuova Partita", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = MaterialTheme.colorScheme.primary)
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = onContinue) {
+                        Text("Continua", fontSize = 16.sp, color = MaterialTheme.colorScheme.error)
+                    }
+                },
+            )
+        }
     }
 }
 
@@ -513,20 +576,23 @@ fun NameBarRow(
 }
 
 @Composable
-fun PointSquadRow(puntiNoi: Int, puntiVoi: Int, customFontSize: Int = 85) {
+fun PointSquadRow(puntiNoi: Int, puntiVoi: Int, fireNoi: Boolean = false, fireVoi: Boolean = false, customFontSize: Int = 85) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(top = 5.dp, start = 15.dp, end = 15.dp, bottom = 5.dp),
-        horizontalArrangement = Arrangement.spacedBy(16.dp)
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically
     ) {
         SlotNumber(
             punti = puntiNoi,
+            isFire = fireNoi,
             modifier = Modifier.weight(1f),
             customFontSize = customFontSize
         )
         SlotNumber(
             punti = puntiVoi,
+            isFire = fireVoi,
             modifier = Modifier.weight(1f),
             customFontSize = customFontSize
         )
@@ -725,6 +791,7 @@ fun CardImageRow(modifier: Modifier = Modifier, customHeight: Dp = 200.dp) {
 
 @Composable
 fun ActionButtonsRow(onAddClick: () -> Unit, onUndoClick: () -> Unit, onMenuClick: () -> Unit, customHeight: Dp = 60.dp) {
+    val view = LocalView.current
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -760,7 +827,10 @@ fun ActionButtonsRow(onAddClick: () -> Unit, onUndoClick: () -> Unit, onMenuClic
         }
 
         Button(
-            onClick = onAddClick,
+            onClick = {
+                view.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
+                onAddClick()
+            },
             modifier = Modifier.weight(2f).height(customHeight),
             shape = btnRadius,
             colors = ButtonDefaults.buttonColors(
@@ -789,7 +859,7 @@ fun BannerPubblicitario(modifier: Modifier = Modifier) {
         }
     } else {
         AndroidView(
-            modifier = modifier.fillMaxWidth(),
+            modifier = modifier.fillMaxWidth().wrapContentHeight(),
             factory = { context ->
                 AdView(context).apply {
                     setAdSize(AdSize.BANNER)

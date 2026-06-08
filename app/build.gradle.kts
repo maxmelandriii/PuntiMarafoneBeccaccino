@@ -63,6 +63,8 @@ dependencies {
     ksp(libs.androidx.room.compiler)
 
     implementation(libs.androidx.fragment)
+    implementation(libs.konfetti.compose)
+    implementation(libs.androidx.core.splashscreen)
 
     implementation(libs.play.services.ads)
 

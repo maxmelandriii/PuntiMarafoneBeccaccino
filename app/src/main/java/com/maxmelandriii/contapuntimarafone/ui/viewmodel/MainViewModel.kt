@@ -3,6 +3,8 @@ package com.maxmelandriii.contapuntimarafone.ui.viewmodel
 import androidx.compose.runtime.*
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import android.content.Context
+import com.maxmelandriii.contapuntimarafone.MarafoneApplication
 import com.maxmelandriii.contapuntimarafone.data.local.PartitaEntity
 import com.maxmelandriii.contapuntimarafone.data.local.PartitaDao
 import com.maxmelandriii.contapuntimarafone.domain.models.Player
@@ -12,9 +14,11 @@ import java.util.*
 
 class MainViewModel(private val dao: PartitaDao) : ViewModel() {
 
+    private val prefs = MarafoneApplication.instance.getSharedPreferences("settings", Context.MODE_PRIVATE)
+
     // --- STATO DEL GIOCO ---
-    val noi = Player("Noi")
-    val voi = Player("Voi")
+    val noi = Player(prefs.getString("nomeNoi", "") ?: "")
+    val voi = Player(prefs.getString("nomeVoi", "") ?: "")
     var idPartitaAttuale by mutableStateOf<Int?>(null)
     
     var puntiInseritiNoi by mutableStateOf("")
@@ -28,7 +32,21 @@ class MainViewModel(private val dao: PartitaDao) : ViewModel() {
     var continuaOltreSoglia by mutableStateOf(false)
     var vittoriaSoglia by mutableIntStateOf(41)
 
+    var lastIncrementWas11Noi by mutableStateOf(false)
+    var lastIncrementWas11Voi by mutableStateOf(false)
+
     // --- LOGICA DI BUSINESS ---
+
+    fun updateNomeSquadra(nuovoNome: String, isNoi: Boolean) {
+        if (isNoi) {
+            noi.nomeSquad = nuovoNome
+            prefs.edit().putString("nomeNoi", nuovoNome).apply()
+        } else {
+            voi.nomeSquad = nuovoNome
+            prefs.edit().putString("nomeVoi", nuovoNome).apply()
+        }
+        salvaStatoInDB()
+    }
 
     fun handlePuntiChange(input: String, isNoi: Boolean) {
         val s = input.filter { it.isDigit() }
@@ -53,9 +71,21 @@ class MainViewModel(private val dao: PartitaDao) : ViewModel() {
         val pNoi = puntiInseritiNoi.toIntOrNull() ?: 0
         val pVoi = puntiInseritiVoi.toIntOrNull() ?: 0
         
+        lastIncrementWas11Noi = (pNoi == 11)
+        lastIncrementWas11Voi = (pVoi == 11)
+
         noi.aggiungiPunti(pNoi, isMaraffaNoi)
         voi.aggiungiPunti(pVoi, isMaraffaVoi)
         
+        // ✨ SPEGNI L'EFFETTO FUOCO DOPO 4 SECONDI (Animation + Attesa) ✨
+        if (lastIncrementWas11Noi || lastIncrementWas11Voi) {
+            viewModelScope.launch {
+                kotlinx.coroutines.delay(4000)
+                lastIncrementWas11Noi = false
+                lastIncrementWas11Voi = false
+            }
+        }
+
         // Reset campi
         puntiInseritiNoi = ""; puntiInseritiVoi = ""
         isMaraffaNoi = false; isMaraffaVoi = false
@@ -83,6 +113,7 @@ class MainViewModel(private val dao: PartitaDao) : ViewModel() {
         voi.azzeraPartita()
         idPartitaAttuale = null
         continuaOltreSoglia = false
+        mostraPopupVittoria = false
         puntiInseritiNoi = ""; puntiInseritiVoi = ""
     }
 
